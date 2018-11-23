@@ -45,22 +45,36 @@ var socket = require('socket.io');
 var io = socket(server);
 io.sockets.on('connection', newConnection);
 
+
+var playerList = [];
+
 function newConnection(socket)
 {
+  playerList.push(socket.id);
   console.log('new connection with id: ' + socket.id);
+
+  initTurnData = {t: true}
+  io.to(playerList[0]).emit('initTurn', initTurnData);
+  // io.sockets.connected[socketid].emit('message', 'for your eyes only');
+
   var initData = {g : numberGrid};
-
   // broadcast to all connected sockets to reset grid
-  // should also broadcast init turn
-  io.sockets.emit('initMessage', initData)
+  io.sockets.emit('initMessage', initData);
 
-  //
+  // callback for updating number grid
   socket.on('turn', turnMsg);
+
   function turnMsg (data)
   {
-    // numberGrid = data.y;
-    console.log("recieved turn data and sending array:  ");
-    console.log(data.y);
+    numberGrid = data.y;
     socket.broadcast.emit('turn', data);
+  }
+
+  // callback for other turn's selection
+  socket.on('otherTurn', otherTurnMsg);
+
+  function otherTurnMsg (otherTurnData)
+  {
+    socket.broadcast.emit('otherTurn', otherTurnData);
   }
 }

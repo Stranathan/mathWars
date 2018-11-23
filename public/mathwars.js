@@ -1,7 +1,7 @@
 
 var socket;
 //
-var myTurn = true;
+var myTurn = false;
 //
 var board;
 
@@ -18,13 +18,19 @@ function setup()
   createCanvas(board.squareSize*board.rows, board.squareSize*board.columns);
 
   socket = io.connect('http://ian.local:3000/');
+  socket.on("initTurn", getInitTurn)
   socket.on('initMessage', getGrid);
   socket.on('turn', newDraw);
+  socket.on('otherTurn', otherTurnSelection);
+}
+// works, first player to join gets true
+function getInitTurn (initTurnData)
+{
+  myTurn = initTurnData.t;
 }
 
 function getGrid(initData)
 {
-  // console.log("received");
   for (var i = 0; i< board.rows; i++)
   {
     for(var j = 0; j< board.columns; j++)
@@ -48,43 +54,75 @@ function newDraw(data)
     for(var j = 0; j< board.columns; j++)
     {
       // set global board to
+      board.grid[i][j].isSelected = false;
       board.grid[i][j].num = data.y[i][j];
       board.grid[i][j].numString = board.grid[i][j].num.toString();
     }
   }
   // set the number array (the data structure we use with server) to be
-  // the same as the change board grid of cells.
+  // the same as the grid
   board.setNumberGrid();
 }
 
-function draw()
+// correct this selection grid to be that of the other client
+function otherTurnSelection(otherTurnData)
 {
-  background(51);
-  let lastDrawIndexI = 0;
-  let lastDrawIndexJ = 0;
-
   for (var i = 0; i< board.rows; i++)
   {
     for(var j = 0; j< board.columns; j++)
     {
-      board.grid[i][j].display();
-      if(board.grid[i][j].isSelected == true)
-      {
-        lastDrawIndexI = i;
-        lastDrawIndexJ = j;
-      }
+      // set global board to
+      board.grid[i][j].isSelected = otherTurnData.z[i][j];
     }
   }
-  board.grid[lastDrawIndexI][lastDrawIndexJ].display();
+}
+
+// this only draws different stoke if isSelected is true
+function draw()
+{
+  background(51);
+  if(myTurn == true)
+  {
+    let lastDrawIndexI = 0;
+    let lastDrawIndexJ = 0;
+
+    for (var i = 0; i< board.rows; i++)
+    {
+      for(var j = 0; j< board.columns; j++)
+      {
+        board.grid[i][j].display();
+        if(board.grid[i][j].isSelected == true)
+        {
+          lastDrawIndexI = i;
+          lastDrawIndexJ = j;
+        }
+      }
+    }
+    board.grid[lastDrawIndexI][lastDrawIndexJ].display();
+  }
+  if(myTurn == false)
+  {
+    let lastOtherDrawIndexI = 0;
+    let lastOtherDrawIndexJ = 0;
+
+    for (var i = 0; i< board.rows; i++)
+    {
+      for(var j = 0; j< board.columns; j++)
+      {
+        board.grid[i][j].displayOtherSelection();
+        if(board.grid[i][j].isSelected == true)
+        {
+          lastOtherDrawIndexI = i;
+          lastOtherDrawIndexJ = j;
+        }
+      }
+    }
+    board.grid[lastOtherDrawIndexI][lastOtherDrawIndexJ].displayOtherSelection();
+  }
 }
 
 function mousePressed()
 {
-  console.log("This is the grid array:   ");
-  console.log(board.grid);
-  console.log("This is the number array:   ");
-  console.log(board.numberGrid);
-
   if(myTurn == true)
   {
     // swap to turn off for draw call
@@ -103,12 +141,17 @@ function mousePressed()
         {
           thisClickI = i;
           thisClickJ = j;
+
           if(clickCount == 0)
           {
+            // can't select 0
             if(board.grid[i][j].num != 0)
             {
               clickCount += 1
               board.grid[thisClickI][thisClickJ].isSelected = true;
+              board.setSelectedGrid();
+              var otherTurnData = {z: board.selectedGrid};
+              socket.emit('otherTurn', otherTurnData);
             }
           }
           // do arithmetic
@@ -137,6 +180,7 @@ function mousePressed()
     }
   }
 
+  // the values of the gridcells were changed, this updates the display
   board.setNumberGrid();
 
   if(myTurn == false)

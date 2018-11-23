@@ -4,12 +4,14 @@
 \margl1440\margr1440\vieww10800\viewh8400\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qc\partightenfactor0
 
-\f0\b\fs24 \cf0 Balance/ Design Ideas and toDo
+\f0\b\fs24 \cf0 Balance/ Design Ideas/ TO DO
 \b0 \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 \cf0 \
-To Do:\
-	Decide which player is which and assign first turn\
+
+\b To Do:\
+
+\b0 Need to minimize array searches \'97 rewrite the selection to just be updating one index instead of looping through grid\
 \
 
 \b Stacking/swiping:
@@ -20,4 +22,9 @@ There should be a ratio developed for how many units to lose when taking a numbe
 e.g. 14 \'97> -14 ==> 7 : 0 \
 \
 #\'97\
-Since I\'92m a terrible programmer, after thinking about it for a while and a lot of console logs.. I realized that the socket.on only happens after js script finishes\'85 so currently i\'92m using a tacky solution where I\'92m just updating the board again after the message is received\'85 there is some blurring when yu first connect and it\'92s a bad, temporary solution,}
+\
+
+\b Bugs/ known needed changes:\
+
+\b0 \
+Since I\'92m a terrible programmer, after thinking about it for a while and a lot of console logs.. I realized that the socket.on only happens after js script finishes\'85 so currently i\'92m using a hacky solution where I\'92m just updating the board again after the message is received\'85 there is some blurring when you first connect.}

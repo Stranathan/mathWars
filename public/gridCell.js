@@ -85,7 +85,62 @@ gridCell.prototype.display = function()
   }
   else
   {
+    // this is neon green
     stroke("#39ff14");
+    strokeWeight(2);
+    fill(this.color);
+    rect(this.posX, this.posY, this.size, this.size);
+  }
+
+
+  // font draw
+  stroke(51)
+  textFont(this.font);
+  textSize(this.fontSize);
+  textAlign(CENTER, CENTER);
+
+  if (this.num > 0)
+  {
+    // coding train black
+    fill(51);
+  }
+  else
+  {
+    // some white color hex
+    fill('#F5F5F5');
+  }
+
+  text(this.numString, this.posX + this.size/2, this.posY + this.size/2 )
+}
+
+gridCell.prototype.displayOtherSelection = function()
+{
+  if (this.num < 0)
+  {
+    this.color = 51;
+  }
+
+  else if (this.num == 0)
+  {
+    this.color = 120;
+  }
+  else
+  {
+    this.color = 210;
+  }
+
+  // cell grid draw for normal color
+  if (this.isSelected == false)
+  {
+    stroke(2);
+    strokeWeight(2);
+    fill(this.color);
+    rect(this.posX, this.posY, this.size, this.size);
+  }
+  else
+  {
+    // this is some purple hex color
+    stroke("#BF3EFF");
     strokeWeight(2);
     fill(this.color);
     rect(this.posX, this.posY, this.size, this.size);
