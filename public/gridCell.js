@@ -12,6 +12,7 @@ function gridCell (squareSize, iIndex, jIndex, numStr, font, fontSize) {
   this.isSelected = false;
 }
 
+// not being used now
 gridCell.prototype.selection = function(x,y)
 {
   // check bounds of mouse input

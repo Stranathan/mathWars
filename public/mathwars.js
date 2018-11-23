@@ -4,7 +4,6 @@ var socket;
 var myTurn = false;
 //
 var board;
-
 // mouse click handling stuff
 var thisClickI = 0;
 var thisClickJ = 0;
@@ -123,61 +122,62 @@ function draw()
 
 function mousePressed()
 {
-  if(myTurn == true)
+  if (! myTurn) {
+    return
+  }
+  // swap to turn off for draw call
+  if(clickCount == 1)
   {
-    // swap to turn off for draw call
-    if(clickCount == 1)
-    {
-      lastClickI = thisClickI;
-      lastClickJ = thisClickJ;
-      board.grid[lastClickI][lastClickJ].isSelected = false;
-    }
+    lastClickI = thisClickI;
+    lastClickJ = thisClickJ;
+    board.grid[lastClickI][lastClickJ].isSelected = false;
+  }
 
-    for (var i = 0; i< board.rows; i++)
-    {
-      for(var j = 0; j< board.columns; j++)
-      {
-        if (board.grid[i][j].selection(mouseX, mouseY))
-        {
-          thisClickI = i;
-          thisClickJ = j;
+  var i = Math.floor(mouseX / board.squareSize);
+  var j = Math.floor(mouseY / board.squareSize);
 
-          if(clickCount == 0)
-          {
-            // can't select 0
-            if(board.grid[i][j].num != 0)
-            {
-              clickCount += 1
-              board.grid[thisClickI][thisClickJ].isSelected = true;
-              board.setSelectedGrid();
-              var otherTurnData = {z: board.selectedGrid};
-              socket.emit('otherTurn', otherTurnData);
-            }
-          }
-          // do arithmetic
-          else if (clickCount == 1)
-          {
-            // I think the bounds of the array can be ignored if i just check each
-            // of the four cases
-            if((thisClickI + 1 == lastClickI && thisClickJ == lastClickJ) ||
-               (thisClickI == lastClickI && thisClickJ + 1 == lastClickJ) ||
-               (thisClickI == lastClickI && thisClickJ - 1 == lastClickJ) ||
-               (thisClickI - 1 == lastClickI && thisClickJ == lastClickJ))
-            {
-              board.grid[thisClickI][thisClickJ].arithmetic(board.grid[lastClickI][lastClickJ]);
-              // this can only be reached if a turn has been made
-              myTurn = false;
-            }
-            clickCount += 1
-          }
-        }
-      }
-    }
-    // reset click count every two clicks
-    if(clickCount == 2)
+  if (! (i <= board.rows && i >= 0 && j <= board.columns && j >= 0)){
+    return
+  }
+
+  thisClickI = i;
+  thisClickJ = j;
+
+  if(clickCount == 0)
+  {
+    // can't select 0
+    console.log(board.grid[i][j])
+    if(board.grid[i][j].num != 0)
     {
-      clickCount = 0;
+      console.log("dsajfklsa");
+      clickCount += 1
+      board.grid[thisClickI][thisClickJ].isSelected = true;
+      board.setSelectedGrid();
+      var otherTurnData = {z: board.selectedGrid};
+      socket.emit('otherTurn', otherTurnData);
     }
+  }
+  // do arithmetic
+  else if (clickCount == 1)
+  {
+    // I think the bounds of the array can be ignored if i just check each
+    // of the four cases
+    if((thisClickI + 1 == lastClickI && thisClickJ == lastClickJ) ||
+       (thisClickI == lastClickI && thisClickJ + 1 == lastClickJ) ||
+       (thisClickI == lastClickI && thisClickJ - 1 == lastClickJ) ||
+       (thisClickI - 1 == lastClickI && thisClickJ == lastClickJ))
+    {
+      board.grid[thisClickI][thisClickJ].arithmetic(board.grid[lastClickI][lastClickJ]);
+      // this can only be reached if a turn has been made
+      myTurn = false;
+    }
+    clickCount += 1
+  }
+
+  // reset click count every two clicks
+  if(clickCount == 2)
+  {
+    clickCount = 0;
   }
 
   // the values of the gridcells were changed, this updates the display
